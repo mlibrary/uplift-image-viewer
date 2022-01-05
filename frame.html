@@ -1,0 +1,61 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embedded Viewer</title>
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    iframe {
+      border: 0;
+      height: 80vh;
+      width: 80vw;
+    }
+
+    #message {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      min-width: 5rem;
+      max-width: 60vw;
+      font-size: 80%;
+      padding: 0.5rem;
+      background: black;
+      color: white;
+    }
+
+  </style>
+</head>
+<body>
+
+  <iframe src="/index.html"></iframe>
+  <div id="message"></div>
+
+  <script>
+    window.addEventListener('message', (event) => {
+      const $message = document.querySelector('#message');
+      if (event.data.event == 'canvasChange') {
+        $message.innerText = `${event.data.identifier} / ${event.data.label}`;
+      }
+    })
+  </script>
+
+  
+</body>
+</html>

@@ -1,6 +1,8 @@
 import Mirador from 'mirador/dist/es/src/index';
 import { miradorImageToolsPlugin } from 'mirador-image-tools';
-import ReduxSaga from 'redux-saga';
+import * as effects from 'redux-saga/effects';
+const ReduxSaga = { effects: effects };
+console.log("AHOY", ReduxSaga);
 
 const $viewer = document.querySelector('#viewer');
 const manifestId = $viewer.dataset.manifestId;
