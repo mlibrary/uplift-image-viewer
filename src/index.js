@@ -74,6 +74,7 @@ const viewer = Mirador.viewer({
   ],
   window: {
     allowClose: false,
+    allowFullscreen: true,
     allowTopMenuButton: allowTopMenuButton,
     allowWindowSideBar: (mode != 'single'),
     allowMaximize: false,
