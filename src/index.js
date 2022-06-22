@@ -10,6 +10,10 @@ const canvasIndex = $viewer.dataset.canvasIndex;
 const provider = $viewer.dataset.provider;
 const mode = $viewer.dataset.mode;
 
+const allowFullscreen = $viewer.dataset.allowFullscreen != null ? 
+  $viewer.dataset.allowFullscreen == true : 
+  true;
+
 let manifests = {};
 manifests[manifestId] = {
   provider: provider
@@ -74,7 +78,7 @@ const viewer = Mirador.viewer({
   ],
   window: {
     allowClose: false,
-    allowFullscreen: true,
+    allowFullscreen: allowFullscreen,
     allowTopMenuButton: allowTopMenuButton,
     allowWindowSideBar: (mode != 'single'),
     allowMaximize: false,
