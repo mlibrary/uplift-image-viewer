@@ -60,16 +60,15 @@ function* handleCanvasChange(event) {
     return canvas['@id'] == canvasId;
   })
 
-  // const identifier = (canvas.images[0].resource['@id'].split('/')).pop();
   const resourceId = canvas.images[0].resource['@id'];
   const identifier = (resourceId.split('/')).pop();
 
-  console.log("-- handleCanvasChange", windowId, state);
+  // console.log("-- handleCanvasChange", windowId, state);
   if (isFramed && DLXS.mirador_config.windows.length > 1) {
     // TODO - answer whether we'll ever update metadata for this kind of presentation, and how
     // for multi-window workspaces, send the updateDownload event because we do not send updateMetadata
     window.top.postMessage({ 
-      event: 'updateDownload', 
+      event: 'updateDownloadLinks', 
       identifier: identifier, 
       label: canvas.label, 
       resourceId: resourceId,
