@@ -5,7 +5,7 @@ const ReduxSaga = { effects: effects };
 console.log("AHOY", ReduxSaga);
 
 const $viewer = document.querySelector('#viewer');
-const manifestId = $viewer.dataset.manifestId;
+// const manifestId = $viewer.dataset.manifestId;
 const canvasIndex = $viewer.dataset.canvasIndex;
 const provider = $viewer.dataset.provider;
 const mode = $viewer.dataset.mode;
@@ -14,10 +14,20 @@ const allowFullscreen = $viewer.dataset.allowFullscreen != null ?
   $viewer.dataset.allowFullscreen == true : 
   true;
 
-let manifests = {};
-manifests[manifestId] = {
-  provider: provider
+let manifests = DLXS.mirador_config.manifests;
+// manifests[manifestId] = {
+//   provider: provider
+// };
+
+let windows = [];
+let windowDefaultParams = {
+  imageToolsEnabled: true,
+  imageToolsOpen: false
 };
+
+DLXS.mirador_config.windows.forEach((window) => {
+  windows.push(Object.assign({}, windowDefaultParams, window));
+});
 
 const allowTopMenuButton = mode != 'single';
 const allowPanelsCanvas = mode != 'single';
@@ -26,9 +36,22 @@ if (mode == 'single') {
   thumbnailNavigation.defaultPosition = 'off';
 }
 
-let initialized = false;
+let isFramed = (!(window.parent == window));
+let numWindows = windows.length;
+let hideWindowTitle = (( numWindows == 1 ) && isFramed);
+
+let initialized = 0;
+
+if ( isFramed ) {
+  // communicate the window config 
+  window.top.postMessage({ 
+    event: 'configureManifests', 
+    manifestList: JSON.stringify(windows.map((v) => v.manifestId))
+  }, '*');
+}
 
 function* handleCanvasChange(event) {
+
   const canvasId = event.canvasId;
   const windowId = event.windowId;
   const state = viewer.store.getState();
@@ -36,14 +59,33 @@ function* handleCanvasChange(event) {
   const canvas = state.manifests[manifestId].json.sequences[0].canvases.find((canvas) => {
     return canvas['@id'] == canvasId;
   })
-  const identifier = (canvas.images[0].resource['@id'].split('/')).pop();
+
+  // const identifier = (canvas.images[0].resource['@id'].split('/')).pop();
+  const resourceId = canvas.images[0].resource['@id'];
+  const identifier = (resourceId.split('/')).pop();
+
+  console.log("-- handleCanvasChange", windowId, state);
+  if (isFramed && DLXS.mirador_config.windows.length > 1) {
+    // TODO - answer whether we'll ever update metadata for this kind of presentation, and how
+    // for multi-window workspaces, send the updateDownload event because we do not send updateMetadata
+    window.top.postMessage({ 
+      event: 'updateDownload', 
+      identifier: identifier, 
+      label: canvas.label, 
+      resourceId: resourceId,
+      manifestId: manifestId
+    }, '*');
+    return;
+  }
 
   console.log(identifier, window.top != window);
-  if (window.top != window) {
-    if (initialized) {
-      window.top.postMessage({ event: 'canvasChange', identifier: identifier, label: canvas.label }, '*');
+  if (isFramed) {
+    // ignore the initial canvasChange event because the page already is displaying
+    // the metadata for this canvas
+    if (initialized == DLXS.mirador_config.windows.length) {
+      window.top.postMessage({ event: 'updateMetadata', identifier: identifier, label: canvas.label }, '*');
     } else {
-      initialized = true;
+      initialized += 1;
     }
   }
   return event;
@@ -68,14 +110,15 @@ const plugins = [
 const viewer = Mirador.viewer({
   id: 'viewer',
   manifests: manifests,
-  windows: [
-    {
-      imageToolsEnabled: true,
-      imageToolsOpen: false,
-      canvasIndex: canvasIndex,
-      manifestId: manifestId,
-    }
-  ],
+  // windows: [
+  //   {
+  //     imageToolsEnabled: true,
+  //     imageToolsOpen: false,
+  //     canvasIndex: canvasIndex,
+  //     manifestId: manifestId,
+  //   }
+  // ],
+  windows: windows,
   window: {
     allowClose: false,
     allowFullscreen: allowFullscreen,
@@ -91,11 +134,11 @@ const viewer = Mirador.viewer({
       search: false,
       rights: true
     },
-    hideWindowTitle: (!(window.parent == window))
+    hideWindowTitle: hideWindowTitle
   },
   workspace: {
     showZoomControls: true,
-    type: 'single'
+    type: windows.length == 1 ? 'single' : 'mosaic'
   },
   workspaceControlPanel: false,
   thumbnailNavigation: thumbnailNavigation,
