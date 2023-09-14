@@ -20,12 +20,12 @@ const styles = (theme) => ({
     display: 'grid',
     // gap: '1rem',
   },
-  open: {
-    'grid-template-columns': '6fr min-content 4fr',
-  },
-  closed:  {
-    'grid-template-columns': '1fr min-content 0',
-  },
+  // open: {
+  //   'grid-template-columns': '6fr min-content 4fr',
+  // },
+  // closed:  {
+  //   'grid-template-columns': '1fr min-content 0',
+  // },
   viewer: {
     position: 'relative',
     display: 'flex',
@@ -150,7 +150,7 @@ class PlainTextViewer extends Component {
 
     this.osdRef = null;
 
-    this.isOpen = true;
+    this.isOpen = null; // initially
 
     this.containerRef = React.createRef(); 
 
@@ -161,9 +161,28 @@ class PlainTextViewer extends Component {
     /** Register OpenSeadragon callback on initial mount */
   componentDidMount() {
     const { enabled, viewer } = this.props;
-    console.log("-- plaintext: componentDidMount", enabled, viewer);
-    if (enabled && viewer) {
-      this.registerOsdCallback();
+    console.log("-- plaintext.componentDidMount", this.containerRef);
+    this.containerRef.current.dataset.isOpen = this.containerRef.current.clientWidth >= 700;
+    this.lastWidth = this.containerRef.current.clientWidth;
+    this.ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      const contentBoxSize = entry.contentBoxSize[0];
+      if ( contentBoxSize.inlineSize < 700 ) {
+        this.containerRef.current.dataset.viewport = 'sm';
+        if ( this.isOpen == null ) { this.isOpen = false; }
+      } else {
+        this.containerRef.current.dataset.viewport = 'lg';
+        if ( this.isOpen == null ) { this.isOpen = true; }
+      }
+      this.lastWidth = contentBoxSize.inlineSize;
+      this.forceUpdate();
+    })
+    this.ro.observe(this.containerRef.current);
+  }
+
+  componentWillUnmount() {
+    if ( this.ro ) {
+      this.ro.disconnect();
     }
   }
 
@@ -210,7 +229,7 @@ class PlainTextViewer extends Component {
       t,
     } = this.props;
 
-    console.log("-- plaintext.render", textsFetching, textsAvailable, pageTexts);
+    console.log("-- plaintext.render", textsFetching, textsAvailable, this.isOpen);
 
     const { hasError } = this.state;
 
@@ -233,13 +252,14 @@ class PlainTextViewer extends Component {
               ev.preventDefault();
               ev.stopPropagation();
               this.isOpen = !this.isOpen;
-              console.log("-- plaintext.isOpen", this.isOpen);
+              this.containerRef.current.dataset.isOpen = this.isOpen;
+              console.log("-- plaintext.isOpen", this.isOpen, this.containerRef.current.dataset.isOpen);
               this.forceUpdate();
             }}>
               {this.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
             </button>
           </div>
-          <div className={`ocr-container ${classes.container}`}>
+          <div key="ocr-container" className={`ocr-container ${classes.container}`}>
             <div style={{ padding: '1rem' }}>
             {textsAvailable &&
               !textsFetching &&
@@ -247,25 +267,14 @@ class PlainTextViewer extends Component {
                 page?.lines?.map((line, index) => {
                   const showLine = true;
                   return (
-                    showLine && (
-                      <><span ref={(ref) => {
+                    showLine && [
+                      <span ref={(ref) => {
                           this.lineRefs[index] = ref;
                           return true;
                         }}
-                        key={`line_${index}`}>{line.text}</span>
-                        <br /></>
-
-                      // <p
-                      //   ref={(ref) => {
-                      //     this.lineRefs[index] = ref;
-                      //     return true;
-                      //   }}
-                      //   className={classes.paragraph}
-                      //   key={`line_${index}`}
-                      // >
-                      //   {line.text}
-                      // </p>
-                    )
+                        key={`line_${index}`}>{line.text}</span>,
+                        <br key={`br_${index}`}/>
+                    ]
                   );
                 })
               )}
