@@ -161,20 +161,23 @@ class PlainTextViewer extends Component {
     /** Register OpenSeadragon callback on initial mount */
   componentDidMount() {
     const { enabled, viewer } = this.props;
-    console.log("-- plaintext.componentDidMount", this.containerRef);
-    this.containerRef.current.dataset.isOpen = this.containerRef.current.clientWidth >= 700;
-    this.lastWidth = this.containerRef.current.clientWidth;
     this.ro = new ResizeObserver((entries) => {
       const entry = entries[0];
       const contentBoxSize = entry.contentBoxSize[0];
       if ( contentBoxSize.inlineSize < 700 ) {
         this.containerRef.current.dataset.viewport = 'sm';
-        if ( this.isOpen == null ) { this.isOpen = false; }
+        // if ( this.isOpen == null ) { this.isOpen = false; }
       } else {
         this.containerRef.current.dataset.viewport = 'lg';
-        if ( this.isOpen == null ) { this.isOpen = true; }
+        // if ( this.isOpen == null ) { this.isOpen = true; }
       }
       this.lastWidth = contentBoxSize.inlineSize;
+
+      if ( this.isOpen == null ) {
+        this.isOpen = this.containerRef.current.dataset.isOpen = this.containerRef.current.clientWidth >= 700;
+      }
+
+      console.log("-- plaintext.componentDidMount", this.containerRef.current.clientWidth, this.containerRef.current.clientWidth >= 700);
       this.forceUpdate();
     })
     this.ro.observe(this.containerRef.current);
