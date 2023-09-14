@@ -152,6 +152,8 @@ class PlainTextViewer extends Component {
 
     this.isOpen = true;
 
+    this.containerRef = React.createRef(); 
+
     console.log("-- plaintext", props);
 
   }
@@ -166,7 +168,7 @@ class PlainTextViewer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log("-- plaintext.componentDidUpdate", prevProps, this.props, this.osdRef);
+    console.log("-- plaintext.componentDidUpdate", prevProps, this.props, this.containerRef);
   }
 
   /** Update container dimensions and page scale/offset every time the OSD viewport changes. */
@@ -220,7 +222,7 @@ class PlainTextViewer extends Component {
 
     return (
       <Suspense fallback={<div />}>
-        <div className={`${classes.wrap} ${classes[this.isOpen ? 'open' : 'closed']}`}>
+        <div className={`ocr-wrap ${classes.wrap} ${classes[this.isOpen ? 'open' : 'closed']}`} ref={this.containerRef}>
           <div className={classes.viewer}>
             <OSDViewer windowId={windowId}>
               <WindowCanvasNavigationControls windowId={windowId} />
@@ -246,16 +248,23 @@ class PlainTextViewer extends Component {
                   const showLine = true;
                   return (
                     showLine && (
-                      <p
-                        ref={(ref) => {
+                      <><span ref={(ref) => {
                           this.lineRefs[index] = ref;
                           return true;
                         }}
-                        className={classes.paragraph}
-                        key={`line_${index}`}
-                      >
-                        {line.text}
-                      </p>
+                        key={`line_${index}`}>{line.text}</span>
+                        <br /></>
+
+                      // <p
+                      //   ref={(ref) => {
+                      //     this.lineRefs[index] = ref;
+                      //     return true;
+                      //   }}
+                      //   className={classes.paragraph}
+                      //   key={`line_${index}`}
+                      // >
+                      //   {line.text}
+                      // </p>
                     )
                   );
                 })
