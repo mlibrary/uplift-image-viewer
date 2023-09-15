@@ -313,9 +313,13 @@ function getFallbackImageSize(lines) {
 }
 
 export function parseText(ocrText, imgSize) {
+  const lines = ocrText.split("\n");
+  if ( lines[0].indexOf('DOCTYPE') > -1 ) {
+      lines.shift();
+  }
   return {
     ...imgSize,
-    lines: ocrText.split("\n").map((v) => { return { text: v }})
+    lines: lines.map((v) => { return { text: v }})
   }
 }
 
