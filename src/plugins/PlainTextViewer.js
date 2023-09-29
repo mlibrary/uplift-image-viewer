@@ -1,4 +1,4 @@
-import React, { Component, lazy, Suspense } from 'react';
+import React, { Component, lazy, Suspense, Fragment } from 'react';
 import { compose } from 'redux';
 import withStyles from '@material-ui/core/styles/withStyles';
 
@@ -267,19 +267,20 @@ class PlainTextViewer extends Component {
             {textsAvailable &&
               !textsFetching &&
               pageTexts?.map((page) =>
-                page?.lines?.map((line, index) => {
-                  const showLine = true;
-                  return (
-                    showLine && [
-                      <span ref={(ref) => {
-                          this.lineRefs[index] = ref;
-                          return true;
-                        }}
-                        key={`line_${index}`}>{line.text}</span>,
-                        <br key={`br_${index}`}/>
-                    ]
-                  );
-                })
+                <div key="1" dangerouslySetInnerHTML={{__html: page.lines[0].text}}></div>
+                // page?.lines?.map((line, index) => {
+                //   const showLine = true;
+                //   return (
+                //     showLine && [
+                //       <span ref={(ref) => {
+                //           this.lineRefs[index] = ref;
+                //           return true;
+                //         }}
+                //         key={`line_${index}`}>{line.text}</span>,
+                //         <br key={`br_${index}`}/>
+                //     ]
+                //   );
+                // })
               )}
             </div>
           </div>

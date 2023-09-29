@@ -10,6 +10,8 @@ const canvasIndex = $viewer.dataset.canvasIndex;
 const provider = $viewer.dataset.provider;
 const mode = $viewer.dataset.mode;
 const hasOcr = $viewer.dataset.hasOcr == 'true';
+const q1 = $viewer.dataset.q1;
+console.log("-- sagas.q1", q1);
 
 const allowFullscreen = $viewer.dataset.allowFullscreen != null ? 
   $viewer.dataset.allowFullscreen == true : 
@@ -142,6 +144,7 @@ const viewer = Mirador.viewer({
     textOverlay: {
       enabled: true,
       visible: true,
+      q1: q1,
     }
   },
   workspace: {

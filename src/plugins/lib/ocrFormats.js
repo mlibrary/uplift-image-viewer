@@ -317,9 +317,14 @@ export function parseText(ocrText, imgSize) {
   if ( lines[0].indexOf('DOCTYPE') > -1 ) {
       lines.shift();
   }
+  // return {
+  //   ...imgSize,
+  //   lines: lines.map((v) => { return { text: v }})
+  // }
+
   return {
     ...imgSize,
-    lines: lines.map((v) => { return { text: v }})
+    lines: [ { text: lines.join("\n") }]
   }
 }
 

@@ -61,7 +61,7 @@ export async function fetchOcrMarkup(url) {
   return resp.text();
 }
 
-const getPageTextUrl = function(canvasId) {
+const getPageTextUrl = function(canvasId, q1) {
   const parts = canvasId.split('/')
   parts.pop();
   parts.pop();
@@ -74,26 +74,29 @@ const getPageTextUrl = function(canvasId) {
   requestUrl.searchParams.set('cc', collid);
   requestUrl.searchParams.set('idno', idno);
   requestUrl.searchParams.set('seq', seq);
+  if ( q1 ) {
+    requestUrl.searchParams.set('q1', q1);
+  }
   return requestUrl.toString();
 }
 
 /** Saga for discovering external OCR on visible canvases and requesting it if not yet loaded */
 export function* discoverExternalOcr({ visibleCanvases: visibleCanvasIds, windowId }) {
   console.log(":: sagas.discoverExternalOcr", visibleCanvasIds, windowId);
-  const { enabled, selectable, visible } = (yield select(getWindowConfig, { windowId }))
-    .textOverlay ?? { enabled: false };
+  const { enabled, selectable, visible, q1 } = (yield select(getWindowConfig, { windowId }))
+    .textOverlay ?? { enabled: false, q1: null };
   if (!enabled) {
     return;
   }
   const canvases = yield select(getCanvases, { windowId });
   const visibleCanvases = (canvases || []).filter((c) => visibleCanvasIds.includes(c.id));
   const texts = yield select(getTexts);
-  console.log(":: sagas.discoverExternalOcr", enabled, visibleCanvasIds, windowId, visibleCanvases);
+  console.log(":: sagas.discoverExternalOcr", enabled, visibleCanvasIds, windowId, visibleCanvases, q1);
 
   for (const canvas of visibleCanvases) {
     console.log(":: sagas.discoverExternalOcr.canvasId", canvas.id);
     const { width, height } = canvas.__jsonld;    
-    const ocrSource = getPageTextUrl(canvas.id);
+    const ocrSource = getPageTextUrl(canvas.id, q1);
     const alreadyHasText = texts[canvas.id]?.source == ocrSource;
     if ( alreadyHasText ) {
       continue;
