@@ -11,6 +11,9 @@ const OSDViewer = lazy(() => import('mirador/dist/es/src//containers/OpenSeadrag
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@material-ui/icons/KeyboardArrowLeft';
 
+import SpeakerNotesIcon from '@material-ui/icons/SpeakerNotes';
+import SpeakerNotesOffIcon from '@material-ui/icons/SpeakerNotesOff';
+
 // Styles
 const styles = (theme) => ({
   windowViewer: {},
@@ -259,7 +262,7 @@ class PlainTextViewer extends Component {
               console.log("-- plaintext.isOpen", this.isOpen, this.containerRef.current.dataset.isOpen);
               this.forceUpdate();
             }}>
-              {this.isOpen ? <KeyboardArrowRightIcon /> : <KeyboardArrowLeftIcon />}
+              {this.isOpen ? <span className="material-icons" ariaHidden="true">subtitles</span> : <span className="material-icons" ariaHidden="true">subtitles_off</span>}
             </button>
           </div>
           <div key="ocr-container" className={`ocr-container ${classes.container}`}>
