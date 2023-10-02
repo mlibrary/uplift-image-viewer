@@ -74,7 +74,6 @@ const getPageTextUrl = function(canvasId, q1) {
   requestUrl.searchParams.set('cc', collid);
   requestUrl.searchParams.set('idno', idno);
   requestUrl.searchParams.set('seq', seq);
-  q1 = 'second-class';
   if ( q1 ) {
     requestUrl.searchParams.set('q1', q1);
   }
