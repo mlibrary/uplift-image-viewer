@@ -23,6 +23,15 @@ const styles = (theme) => ({
     display: 'grid',
     // gap: '1rem',
   },
+  'image-text': {
+    'grid-template-columns': '6fr 4fr',
+  },
+  'image': {
+    'grid-template-columns': '1fr 0',
+  },
+  'text': {
+    'grid-template-columns': '0 1fr',
+  },
   // open: {
   //   'grid-template-columns': '6fr min-content 4fr',
   // },
@@ -33,6 +42,9 @@ const styles = (theme) => ({
     position: 'relative',
     display: 'flex',
     flex: 1,
+    '&[data-visible="false"]': {
+      visibility: 'hidden',
+    }
   },
   container: {
     'font-family': 'var(--font-base-family), "Roboto", "Helvetica", "Arial", sans-serif',
@@ -47,96 +59,11 @@ const styles = (theme) => ({
     'overflow-y': 'auto',
     'scroll-behavior': 'smooth',
     'border-left': `1px solid rgba(0,0,0,0.25)`,
-    display: ({ textsAvailable, visible }) => (textsAvailable && visible ? null : 'none'),
+    display: ({ textsAvailable, textVisible }) => (textsAvailable && textVisible ? null : 'none'),
   },
-  divider: {
-    background: '#eee',
-    color: '#fff',
-    position: 'relative',
-    width: '1rem',
-    margin: '0',
-  },
-  toggle: {
-    // background: '#000',
-    // color: '#fff',
-    // padding: '0.25rem',
-    // transform: 'rotate(-90deg)',
-    'font-size': '0.75rem',
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    'z-index': 101,
-    'background': '#fff',
-    'border-width': 1,
-    'box-shadow': '0 .5rem 1rem #00000026!important',
-    'padding': '0.375rem 0.75rem',
-    margin: '0',
-    display: 'flex',
-    'justify-content': 'center',
-    'align-items': 'center',
-    'border-radius': '50%',
-    width: '2.5rem',
-    height: '2.5rem',
-  },
-  'toggle-closed': {
-    'margin-left': '-1rem',
-  },
-  paragraph: {
-    margin: '0.25em 0',
-  },
-  // lineWrap: {
-  //   position: 'relative',
-  //   width: '100%',
-  //   transition: 'background-color 0.3s ease',
-  //   '&:hover': {
-  //     'background-color': ({ color, opacity }) =>
-  //       alpha(color, opacity - 0.15 > 0 ? opacity - 0.15 : 0),
-  //   },
-  // },
-  button: {
-    appearance: 'none',
-    border: 0,
-    display: 'block',
-    cursor: 'pointer',
-    fontSize: '15.4px',
-    padding: '0.5em 2em 0.5em 0.5em',
-    lineHeight: '1.2',
-    'background-color': 'transparent',
-  },
-  line: {
-    width: '100%',
-    'text-align': 'left',
-  },
-  // isHighlighted: {
-  //   'background-color': ({ color, opacity }) => alpha(color, opacity),
-  //   '&:hover': {
-  //     'background-color': ({ color, opacity }) => alpha(color, opacity),
-  //   },
-  // },
-  correction: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    fontSize: '24px',
-    padding: '0.2em 0.25em',
-    display: 'none',
-    color: theme.palette.primary.main,
-    transition: 'color 0.3s ease',
-    '&, &:hover': {
-      background: 'transparent',
-    },
-    '&:hover': {
-      color: theme.palette.primary.dark
-    }
-  },
-  correctionIcon: {
-    fontSize: '1em',
-    lineHeight: 0,
-    padding: 0,
-  },
-  showCorrection: {
-    display: 'block',
+  'ocrText': {
+    'padding': '1rem',
+    'white-space': 'pre-line',
   },
 });
 
@@ -163,7 +90,7 @@ class PlainTextViewer extends Component {
 
     /** Register OpenSeadragon callback on initial mount */
   componentDidMount() {
-    const { enabled, viewer } = this.props;
+    const { enabled, viewer, imageVisible, textVisible, updatePlainTextOptions } = this.props;
     this.ro = new ResizeObserver((entries) => {
       const entry = entries[0];
       const contentBoxSize = entry.contentBoxSize[0];
@@ -180,10 +107,19 @@ class PlainTextViewer extends Component {
         this.isOpen = this.containerRef.current.dataset.isOpen = this.containerRef.current.clientWidth >= 700;
       }
 
+      if ( this.containerRef.current.clientWidth < 700 && imageVisible && textVisible ) {
+        updatePlainTextOptions({ imageVisible: imageVisible, textVisible: false });
+      }
+
       console.log("-- plaintext.componentDidMount", this.containerRef.current.clientWidth, this.containerRef.current.clientWidth >= 700);
       this.forceUpdate();
     })
-    this.ro.observe(this.containerRef.current);
+    // this.ro.observe(this.containerRef.current);
+    console.log("-- plaintext.componentDidMount", this.props, this.containerRef, this.containerRef.current.clientWidth, imageVisible, textVisible);
+    if ( this.containerRef.current.clientWidth == 0 ) { return; }
+    if ( this.containerRef.current.clientWidth < 700 && imageVisible && textVisible ) {
+      updatePlainTextOptions({ imageVisible: true, textVisible: false });
+    }
   }
 
   componentWillUnmount() {
@@ -193,7 +129,15 @@ class PlainTextViewer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log("-- plaintext.componentDidUpdate", prevProps, this.props, this.containerRef);
+    const { imageVisible, textVisible, updatePlainTextOptions } = this.props;
+    console.log("-- plaintext.componentDidUpdate", prevProps, this.props, this.containerRef, this.containerRef.current.clientWidth, imageVisible, textVisible);
+    if ( this.containerRef.current.clientWidth < 700 && imageVisible && textVisible ) {
+      if ( prevProps.imageVisible && prevProps.textVisible ) {
+        updatePlainTextOptions({ imageVisible: imageVisible, textVisible: false });
+      } else if ( imageVisible && ! prevProps.textVisible && textVisible ) {
+        updatePlainTextOptions({ imageVisible: false, textVisible: true });
+      }
+    }
   }
 
   /** Update container dimensions and page scale/offset every time the OSD viewport changes. */
@@ -233,11 +177,17 @@ class PlainTextViewer extends Component {
       textsFetching,
       doHighlightLine,
       t,
+      imageVisible,
+      textVisible,
     } = this.props;
 
-    console.log("-- plaintext.render", textsFetching, textsAvailable, this.isOpen);
+    console.log("-- plaintext.render", textsFetching, textsAvailable, this.isOpen, `imageVisible=${imageVisible}`, `textVisible=${textVisible}`);
 
     const { hasError } = this.state;
+
+    let panelClass = 'image-text';
+    if ( imageVisible && ! textVisible ) { panelClass = 'image'; }
+    else if ( ! imageVisible && textVisible ) { panelClass = 'text'; }
 
     if (hasError) {
       return <></>;
@@ -247,26 +197,14 @@ class PlainTextViewer extends Component {
 
     return (
       <Suspense fallback={<div />}>
-        <div className={`ocr-wrap ${classes.wrap} ${classes[this.isOpen ? 'open' : 'closed']}`} ref={this.containerRef}>
-          <div className={classes.viewer}>
+        <div className={`ocr-wrap ${classes.wrap} ${classes[panelClass]}`} ref={this.containerRef}>
+          <div className={classes.viewer} data-visible={String(imageVisible)}>
             <OSDViewer windowId={windowId}>
               <WindowCanvasNavigationControls windowId={windowId} />
             </OSDViewer>
           </div>
-          <div className={`ocr-divider ${classes.divider}`}>
-            <button className={`ocr-toggle ${classes.toggle} ${!this.isOpen && classes['toggle-closed']}`} onClick={(ev) => {
-              ev.preventDefault();
-              ev.stopPropagation();
-              this.isOpen = !this.isOpen;
-              this.containerRef.current.dataset.isOpen = this.isOpen;
-              console.log("-- plaintext.isOpen", this.isOpen, this.containerRef.current.dataset.isOpen);
-              this.forceUpdate();
-            }}>
-              {this.isOpen ? <span className="material-icons" ariaHidden="true">subtitles</span> : <span className="material-icons" ariaHidden="true">subtitles_off</span>}
-            </button>
-          </div>
-          <div key="ocr-container" className={`ocr-container ${classes.container}`}>
-            <div style={{ padding: '1rem' }}>
+          <div key="ocr-container" className={`ocr-container ${classes.container}`} data-visible={String(textVisible)}>
+            <div className={`${classes.ocrText}`}>
             {textsAvailable &&
               !textsFetching &&
               pageTexts?.map((page) =>
@@ -316,6 +254,8 @@ PlainTextViewer.propTypes = {
   windowId: PropTypes.string.isRequired,
   viewConfig: PropTypes.object,
   viewer: PropTypes.object,
+  dialogOpen: PropTypes.bool,
+  updatePlainTextOptions: PropTypes.func,
 };
 
 PlainTextViewer.defaultProps = {
@@ -323,6 +263,9 @@ PlainTextViewer.defaultProps = {
   open: true,
   viewer: undefined,
   viewConfig: {},
+  imageVisible: true,
+  textVisiible: true,
+  updatePlainTextOptions: () => {},
 };
 
 const enhance = compose(withStyles(styles));

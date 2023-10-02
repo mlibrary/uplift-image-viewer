@@ -8,9 +8,11 @@ import {
   getManifestMetadata,
   getViewer,
 } from 'mirador/dist/es/src/state/selectors';
+import { updateWindow } from 'mirador/dist/es/src/state/actions';
 
-import { getTextsForVisibleCanvases, getWindowTextOverlayOptions } from './state/selectors';
+import { getTextsForVisibleCanvases, getPlainTextOptions } from './state/selectors';
 import PlainTextViewer from './PlainTextViewer';
+import plainTextViewerToolbarPlugin from './PlainTextViewerToolbar';
 import { textsReducer } from './state/reducers';
 import textSaga from './state/sagas';
 
@@ -21,6 +23,10 @@ export default [
     mode: 'wrap',
     mapDispatchToProps: (dispatch, { windowId }) => ({
       doSetCanvas: (canvasId) => dispatch(setCanvas(windowId, canvasId)),
+      updatePlainTextOptions: (plainText) => {
+        console.log("-- toolbar updatePlainTextOptions", windowId);
+        return dispatch(updateWindow(windowId, { plainText }))
+      },
     }),
     mapStateToProps: (state, { id, manifestId, windowId }) => ({
       pageTexts: getTextsForVisibleCanvases(state, { windowId }).map((canvasText) => {
@@ -43,12 +49,13 @@ export default [
       canvasId: (getCurrentCanvas(state, { windowId }) || {}).id,
       canvasIndex: getCanvasIndex(state, { windowId }),
       viewConfig: getViewer(state, { windowId }) || {},
-      visible: true,
       windowId,
+      ...getPlainTextOptions(state, { windowId }),
     }),
     reducers: {
       texts: textsReducer,
     },
     saga: textSaga,
-  }
+  },
+  plainTextViewerToolbarPlugin,
 ];

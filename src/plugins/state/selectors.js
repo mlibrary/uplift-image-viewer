@@ -23,10 +23,19 @@ const defaultConfig = {
 /** Selector to get text display options for a given window */
 export const getWindowTextOverlayOptions = createSelector(
   [getWindowConfig, getTheme],
-  ({ textOverlay }, { typography: { fontFamily } }) => ({
+  ({ textOverlay }, { typography: { fontFamily },  }) => ({
     fontFamily,
     ...defaultConfig,
     ...(textOverlay ?? {}),
+  })
+);
+
+export const getPlainTextOptions = createSelector(
+  [getWindowConfig, getTheme],
+  ({ plainText }, { typography: { fontFamily } }) => ({
+    fontFamily,
+    ...defaultConfig,
+    ...(plainText ?? { imageVisible: true, textVisible: true, }),
   })
 );
 
