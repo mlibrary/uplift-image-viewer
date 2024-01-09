@@ -58,6 +58,7 @@ const isHocr = (resource) =>
 /** Wrapper around fetch() that returns the content as text */
 export async function fetchOcrMarkup(url) {
   const resp = await fetch(url, { credentials: 'include' });
+  if ( resp.status != 200 ) { return ''; }
   return resp.text();
 }
 
