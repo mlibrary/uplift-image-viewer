@@ -182,12 +182,17 @@ class PlainTextViewer extends Component {
     } = this.props;
 
     console.log("-- plaintext.render", textsFetching, textsAvailable, this.isOpen, `imageVisible=${imageVisible}`, `textVisible=${textVisible}`);
-
+    
     const { hasError } = this.state;
+    const hasLoadIssue = pageTexts && pageTexts[0] === undefined;
 
     let panelClass = 'image-text';
     if ( imageVisible && ! textVisible ) { panelClass = 'image'; }
     else if ( ! imageVisible && textVisible ) { panelClass = 'text'; }
+
+    if ( textsAvailable && !textsFetching && pageTexts[0].lines[0] === undefined ) {
+      panelClass = 'image';
+    }
 
     if (hasError) {
       return <></>;
@@ -207,8 +212,9 @@ class PlainTextViewer extends Component {
             <div className={`${classes.ocrText}`}>
             {textsAvailable &&
               !textsFetching &&
+              !hasLoadIssue &&
               pageTexts?.map((page) =>
-                <div key="1" dangerouslySetInnerHTML={{__html: page.lines[0].text}}></div>
+                <div key="1" dangerouslySetInnerHTML={{__html: page.lines[0]?.text}}></div>
                 // page?.lines?.map((line, index) => {
                 //   const showLine = true;
                 //   return (
