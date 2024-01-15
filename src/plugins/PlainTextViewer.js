@@ -63,7 +63,7 @@ const styles = (theme) => ({
   },
   'ocrText': {
     'padding': '1rem',
-    'white-space': 'pre-line',
+    // 'white-space': 'pre-line',
   },
 });
 
