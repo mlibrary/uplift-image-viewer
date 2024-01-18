@@ -1,14 +1,17 @@
 import Mirador from 'mirador/dist/es/src/index';
 import { miradorImageToolsPlugin } from 'mirador-image-tools';
+import plainTextViewerPlugin from './plugins';
 import * as effects from 'redux-saga/effects';
 const ReduxSaga = { effects: effects };
-console.log("AHOY", ReduxSaga);
 
 const $viewer = document.querySelector('#viewer');
 // const manifestId = $viewer.dataset.manifestId;
 const canvasIndex = $viewer.dataset.canvasIndex;
 const provider = $viewer.dataset.provider;
 const mode = $viewer.dataset.mode;
+const hasOcr = $viewer.dataset.hasOcr == 'true';
+const q1 = $viewer.dataset.q1;
+console.log("-- sagas.q1", q1);
 
 const allowFullscreen = $viewer.dataset.allowFullscreen != null ? 
   $viewer.dataset.allowFullscreen == true : 
@@ -106,6 +109,10 @@ const plugins = [
   ]
 ]
 
+if ( hasOcr ) {
+  plugins.push(...plainTextViewerPlugin); 
+}
+
 const viewer = Mirador.viewer({
   id: 'viewer',
   manifests: manifests,
@@ -133,7 +140,12 @@ const viewer = Mirador.viewer({
       search: false,
       rights: true
     },
-    hideWindowTitle: hideWindowTitle
+    hideWindowTitle: hideWindowTitle,
+    textOverlay: {
+      enabled: true,
+      visible: true,
+      q1: q1,
+    }
   },
   workspace: {
     showZoomControls: true,
