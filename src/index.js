@@ -35,7 +35,7 @@ DLXS.mirador_config.windows.forEach((window) => {
 const allowTopMenuButton = mode != 'single';
 const allowPanelsCanvas = mode != 'single';
 const thumbnailNavigation = { defaultPosition: 'far-bottom' };
-if (mode == 'single') {
+if (true || mode == 'single') {
   thumbnailNavigation.defaultPosition = 'off';
 }
 
@@ -132,6 +132,7 @@ const viewer = Mirador.viewer({
     allowWindowSideBar: (mode != 'single'),
     allowMaximize: false,
     defaultSideBarPanel: 'canvas',
+    sideBarOpenByDefault: (mode != 'single'),
     panels: {
       info: false,
       attribution: false,
@@ -140,11 +141,17 @@ const viewer = Mirador.viewer({
       search: false,
       rights: true
     },
+    canvasNavigation: {
+      variant: 'thumbnail',
+    },
     hideWindowTitle: hideWindowTitle,
     textOverlay: {
       enabled: true,
       visible: true,
       q1: q1,
+    },
+    sidebarIndexList: {
+      variant: 'thumbnail',
     }
   },
   workspace: {
