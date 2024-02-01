@@ -18,7 +18,7 @@
     "@blueprintjs/core": "^3.52.0",
     "css-loader": "^6.5.1",
     "esbuild": "^0.19.2",
-    "mirador": "^3.3.0",
+    "mirador": "github:mlibrary/mirador#v3.3.0-patching-zoom",
     "mirador-image-tools": "^0.11.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
