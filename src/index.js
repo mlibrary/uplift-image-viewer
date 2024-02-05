@@ -169,8 +169,7 @@ const viewer = Mirador.viewer({
       flickEnabled: true,
       pinchRotate: true
     },
-    preserveViewport: true,
-    homeFillsViewer: true,
+    // homeFillsViewer: true,
   },
 
   selectedTheme: 'light',
