@@ -132,7 +132,7 @@ const viewer = Mirador.viewer({
     allowWindowSideBar: (mode != 'single'),
     allowMaximize: false,
     defaultSideBarPanel: 'canvas',
-    sideBarOpenByDefault: (mode != 'single'),
+    sideBarOpenByDefault: (mode != 'single' && window.innerWidth >= 500),
     panels: {
       info: false,
       attribution: false,
@@ -168,7 +168,9 @@ const viewer = Mirador.viewer({
       dblClickToZoom: true,
       flickEnabled: true,
       pinchRotate: true
-    }
+    },
+    preserveViewport: true,
+    homeFillsViewer: true,
   },
 
   selectedTheme: 'light',
