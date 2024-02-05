@@ -6,8 +6,8 @@
   "scripts": {
     "webpack-dev": "webpack --mode=development",
     "webpack-build": "webpack",
-    "dev": "esbuild src/index.js --bundle --outfile=dist/main.js --loader:.js=jsx --watch --sourcemap",
-    "build": "esbuild src/index.js --bundle --outfile=dist/main.js --loader:.js=jsx --minify",
+    "dev": "esbuild src/index.js --bundle --outfile=dist/main.js --loader:.js=jsx --watch --sourcemap --alias:domain=domain-browser",
+    "build": "esbuild src/index.js --bundle --outfile=dist/main.js --loader:.js=jsx --minify --alias:domain=domain-browser",
     "split": "esbuild src/index.js --bundle --outdir=dist --loader:.js=jsx --minify --splitting",
     "release": "rsync -av --exclude=node_modules . quod-update:/l1/web/uplift-image-viewer",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,20 +17,19 @@
   "devDependencies": {
     "@blueprintjs/core": "^3.52.0",
     "css-loader": "^6.5.1",
-    "esbuild": "^0.19.2",
-    "mirador": "^3.3.0",
+    "esbuild": "0.19.12",
+    "mirador": "github:mlibrary/mirador#v3.3.0-patching-zoom",
     "mirador-image-tools": "^0.11.0",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "redux-saga": "^1.1.3",
     "style-loader": "^3.3.1",
-    "url": "^0.11.0",
-    "webpack": "^5.65.0",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.9.2"
+    "url": "^0.11.0"
   },
   "dependencies": {
+    "@material-ui/icons": "^4.9.1",
     "isomorphic-unfetch": "^4.0.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "reselect": "^4.0.0"
   }
 }
