@@ -65,6 +65,13 @@ const styles = (theme) => ({
     'padding': '1rem',
     // 'white-space': 'pre-line',
   },
+  'fetching': {
+    display: 'flex',
+    'align-items': 'center',
+    'justify-content': 'center',
+    'grid-column': '1/3',
+    'font-family': 'monospace',
+  }
 });
 
 class PlainTextViewer extends Component {
@@ -129,8 +136,21 @@ class PlainTextViewer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { imageVisible, textVisible, updatePlainTextOptions } = this.props;
-    console.log("-- plaintext.componentDidUpdate", prevProps, this.props, this.containerRef, this.containerRef.current.clientWidth, imageVisible, textVisible);
+    const { 
+      imageVisible, 
+      textVisible, 
+      updatePlainTextOptions,
+      textsAvailable,
+      textsFetching,
+      pageTexts,
+    } = this.props;
+    console.log("-- plaintext.componentDidUpdate", prevProps, this.props, this.containerRef, this.containerRef.current.clientWidth, imageVisible, textVisible, textsFetching, pageTexts);
+    if ( textsAvailable && ! textsFetching && pageTexts[0].lines[0] === undefined ) {
+      if ( textVisible ) {
+        updatePlainTextOptions({ imageVisible: true, textVisible: false });
+      }
+      return;
+    }
     if ( this.containerRef.current.clientWidth < 700 && imageVisible && textVisible ) {
       if ( prevProps.imageVisible && prevProps.textVisible ) {
         updatePlainTextOptions({ imageVisible: imageVisible, textVisible: false });
@@ -179,6 +199,8 @@ class PlainTextViewer extends Component {
       t,
       imageVisible,
       textVisible,
+      updatePlainTextOptions,
+      updateTextDisabled,
     } = this.props;
 
     console.log("-- plaintext.render", textsFetching, textsAvailable, this.isOpen, `imageVisible=${imageVisible}`, `textVisible=${textVisible}`);
@@ -192,6 +214,9 @@ class PlainTextViewer extends Component {
 
     if ( textsAvailable && !textsFetching && pageTexts[0].lines[0] === undefined ) {
       panelClass = 'image';
+      // setTimeout(() => {
+      //   updatePlainTextOptions({ imageVisible: true, textVisible: false });
+      // }, 0);
     }
 
     if (hasError) {
@@ -203,34 +228,26 @@ class PlainTextViewer extends Component {
     return (
       <Suspense fallback={<div />}>
         <div className={`ocr-wrap ${classes.wrap} ${classes[panelClass]}`} ref={this.containerRef}>
-          <div className={classes.viewer} data-visible={String(imageVisible)}>
-            <OSDViewer windowId={windowId}>
-              <WindowCanvasNavigationControls windowId={windowId} />
-            </OSDViewer>
-          </div>
-          <div key="ocr-container" className={`ocr-container ${classes.container}`} data-visible={String(textVisible)}>
-            <div className={`${classes.ocrText}`}>
-            {textsAvailable &&
-              !textsFetching &&
-              !hasLoadIssue &&
-              pageTexts?.map((page) =>
-                <div key="1" dangerouslySetInnerHTML={{__html: page.lines[0]?.text}}></div>
-                // page?.lines?.map((line, index) => {
-                //   const showLine = true;
-                //   return (
-                //     showLine && [
-                //       <span ref={(ref) => {
-                //           this.lineRefs[index] = ref;
-                //           return true;
-                //         }}
-                //         key={`line_${index}`}>{line.text}</span>,
-                //         <br key={`br_${index}`}/>
-                //     ]
-                //   );
-                // })
-              )}
-            </div>
-          </div>
+          {( false || textsFetching ) ?
+            <div className={classes.fetching}><div className="loader"></div></div> : 
+            <>
+              <div className={classes.viewer} data-visible={String(imageVisible)}>
+                <OSDViewer windowId={windowId}>
+                  <WindowCanvasNavigationControls windowId={windowId} />
+                </OSDViewer>
+              </div>
+              <div key="ocr-container" className={`ocr-container ${classes.container}`} data-visible={String(textVisible)}>
+                <div className={`${classes.ocrText}`}>
+                {textsAvailable &&
+                  !textsFetching &&
+                  !hasLoadIssue &&
+                  pageTexts?.map((page) =>
+                    <div key="1" dangerouslySetInnerHTML={{__html: page.lines[0]?.text}}></div>
+                  )}
+                </div>
+              </div>
+            </>
+          }
         </div>
       </Suspense>
     );

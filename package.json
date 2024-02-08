@@ -9,7 +9,7 @@
     "dev": "esbuild src/index.js --bundle --outfile=dist/main.js --loader:.js=jsx --watch --sourcemap --alias:domain=domain-browser",
     "build": "esbuild src/index.js --bundle --outfile=dist/main.js --loader:.js=jsx --minify --alias:domain=domain-browser",
     "split": "esbuild src/index.js --bundle --outdir=dist --loader:.js=jsx --minify --splitting",
-    "release": "rsync -av --exclude=node_modules . quod-update:/l1/web/uplift-image-viewer",
+    "release": "rsync -av --exclude=node_modules --exclude=.git . quod-update:/l1/web/uplift-image-viewer",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

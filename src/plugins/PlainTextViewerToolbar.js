@@ -20,7 +20,7 @@ import {
   getManifestTitle,
   getManifestMetadata,
 } from 'mirador/dist/es/src/state/selectors';
-import { receiveTextFailure } from './state/actions';
+import { receiveText, receiveTextFailure } from './state/actions';
 
 const downloadDialogReducer = (state = {}, action) => {
   console.log("-- toolbar", state, action);
@@ -108,9 +108,12 @@ const styles = (theme) => ({
 
 const mapDispatchToProps = (dispatch, { windowId }) => ({
   updatePlainTextOptions: (plainText) => {
-    console.log("-- toolbar updatePlainTextOptions", windowId);
+    console.log("-- plaintext.toolbar updatePlainTextOptions", windowId, plainText);
     return dispatch(updateWindow(windowId, { plainText }))
   },
+  updatePlainTextDisabled: (plainText) => {
+    console.log("-- plaintext.toolbar.updatePlainTextDisabled", windowId, plainText);
+  }
 });
 
 class PlainTextViewerToolbar extends Component {
@@ -127,12 +130,14 @@ class PlainTextViewerToolbar extends Component {
       updatePlainTextOptions,
       imageVisible,
       textVisible,
+      textDisabled,
     } = this.props;
+    console.log("-- plaintext.toggleTextButton.render", textVisible, textDisabled);
     return (
       <React.Fragment>
         <div className={`${classes.toolbar}`} id="wtf">
           <MiradorMenuButton
-            containerId={`wtf`}
+            containerId={`plaintextToolbar`}
             aria-label={`${imageVisible ? 'Hide' : 'Show'} Image`}
             onClick={() => {
               // updateWindowTextOverlayOptions({
@@ -153,7 +158,7 @@ class PlainTextViewerToolbar extends Component {
             <ImageIcon /> <span>Image</span>
           </MiradorMenuButton>
           <MiradorMenuButton
-            containerId={`wtf`}
+            containerId={`plaintextToolbar`}
             aria-label={`${textVisible ? 'Hide' : 'Show'} Text`}
             onClick={() => {
               // updateWindowTextOverlayOptions({
@@ -166,7 +171,7 @@ class PlainTextViewerToolbar extends Component {
 
               console.log("-- gibberish image", textVisible);
             }}
-            disabled={false}
+            disabled={textDisabled === true}
             aria-pressed={true}
             data-visible={textVisible}
             className={`button ${classes.buttonGhost} ${classes.toggle} ${textVisible ? classes.active : {}}`}
@@ -190,6 +195,7 @@ class PlainTextViewerToolbar extends Component {
 PlainTextViewerToolbar.propTypes = {
   handleClose: PropTypes.func,
   updatePlainTextOptions: PropTypes.func,
+  textDisabled: PropTypes.bool,
   classes: PropTypes.object,
 };
 
@@ -208,14 +214,12 @@ export default {
   mapDispatchToProps,
   mapStateToProps: (state, { windowId }) => {
     const { imageToolsEnabled = true, plainText } = getWindowConfig(state, { windowId });
-    console.log("-- gibberish", state, getContainerId(state));
+    let textDisabled = false;
+    console.log("-- plaintext.PlainTextViewerToolbar.mapStateToProps", windowId, getContainerId(state));
     return {
-      containerId: `wtf`,
       imageToolsEnabled,
+      textDisabled,
       ...(plainText ?? { imageVisible: true, textVisible: receiveTextFailure })
     };
   },
-  // reducers: {
-  //   windowDialogs: downloadDialogReducer,
-  // },
 };

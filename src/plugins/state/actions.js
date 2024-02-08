@@ -66,6 +66,7 @@ export function receiveText(targetId, textUri, sourceType, parsedText) {
  * @memberof ActionCreators
  */
 export function receiveTextFailure(targetId, textUri, error) {
+  console.log("-- plaintext.receiveTextFailure", error);
   return {
     error,
     targetId,

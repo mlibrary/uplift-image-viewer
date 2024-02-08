@@ -16,6 +16,23 @@ import plainTextViewerToolbarPlugin from './PlainTextViewerToolbar';
 import { textsReducer } from './state/reducers';
 import textSaga from './state/sagas';
 
+plainTextViewerToolbarPlugin.mapStateToProps = (state, { windowId }) => {
+  const { imageToolsEnabled = true, plainText } = getWindowConfig(state, { windowId });
+  let textDisabled = false;
+  console.log("-- ALTERNATE plaintext.PlainTextViewerToolbar.mapStateToProps", windowId, getContainerId(state));
+  return {
+    imageToolsEnabled,
+    textDisabled: (getTextsForVisibleCanvases(state, { windowId }).map((canvasText) => {
+      if (canvasText === undefined || canvasText.isFetching) {
+        return true;
+      }
+      console.log("-- plaintext.PlainTextViewerToolbar.textDisabled", canvasText, canvasText.text.lines && canvasText.text.lines[0] === undefined);
+      return ( canvasText.text.lines && canvasText.text.lines[0] === undefined );
+    }))[0],
+    ...(plainText ?? { imageVisible: true, textVisible: true })
+  };
+};
+
 export default [
   {
     component: PlainTextViewer,
@@ -24,7 +41,7 @@ export default [
     mapDispatchToProps: (dispatch, { windowId }) => ({
       doSetCanvas: (canvasId) => dispatch(setCanvas(windowId, canvasId)),
       updatePlainTextOptions: (plainText) => {
-        console.log("-- toolbar updatePlainTextOptions", windowId);
+        console.log("-- plaintext.toolbar updatePlainTextOptions.index", windowId, plainText);
         return dispatch(updateWindow(windowId, { plainText }))
       },
     }),

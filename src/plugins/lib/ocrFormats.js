@@ -312,6 +312,9 @@ function getFallbackImageSize(lines) {
   };
 }
 
+const blankPage = `<section style="white-space: pre-line">
+  <p  class="plaintext"></p>
+</section>`;
 export function parseText(ocrText, imgSize) {
   if ( ! ocrText ) {
     return {
@@ -324,10 +327,14 @@ export function parseText(ocrText, imgSize) {
   if ( lines[0].indexOf('DOCTYPE') > -1 ) {
       lines.shift();
   }
-  // return {
-  //   ...imgSize,
-  //   lines: lines.map((v) => { return { text: v }})
-  // }
+
+  const parsedText = lines.join("\n").trim();
+  if ( parsedText == blankPage ) {
+    return {
+      ...imgSize,
+      lines: []
+    }
+  }
 
   return {
     ...imgSize,
