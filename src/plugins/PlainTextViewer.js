@@ -242,7 +242,7 @@ class PlainTextViewer extends Component {
                   !textsFetching &&
                   !hasLoadIssue &&
                   pageTexts?.map((page) =>
-                    <div key="1" dangerouslySetInnerHTML={{__html: page.lines[0]?.text}}></div>
+                    <div className="fullview-main" key="1" dangerouslySetInnerHTML={{__html: page.lines[0]?.text}}></div>
                   )}
                 </div>
               </div>

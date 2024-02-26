@@ -80,12 +80,12 @@ function* handleCanvasChange(event) {
     return;
   }
 
-  console.log(identifier, window.top != window);
+  console.log("instance.mirador", canvas, identifier, window.top != window);
   if (isFramed) {
     // ignore the initial canvasChange event because the page already is displaying
     // the metadata for this canvas
     if (initialized == DLXS.mirador_config.windows.length) {
-      window.top.postMessage({ event: 'updateMetadata', identifier: identifier, label: canvas.label }, '*');
+      window.top.postMessage({ event: 'updateMetadata', canvasId: canvasId, identifier: identifier, label: canvas.label }, '*');
     } else {
       initialized += 1;
     }
